@@ -98,7 +98,7 @@ Following image is without caption:
 So this won't be a figure.
 `,
 		Expected: `<p>Following image is without caption:</p>
-<img src="https://example.com/image.jpg" alt="Alt text">
+<p><img src="https://example.com/image.jpg" alt="Alt text"></p>
 <p>So this won't be a figure.</p>
 `,
 	}, t)
