@@ -41,6 +41,8 @@ func (b *figureParagraphTransformer) Transform(node *gast.Paragraph, reader text
 	// See CommonMark spec: https://spec.commonmark.org/0.30/#images.
 	if !imageRegexp.Match(firstLineStr) {
 		return
+	} else if lines.Len() == 1 {
+		return // Only image, no caption: skip
 	}
 	figure := fast.NewFigure()
 	node.Parent().ReplaceChild(node.Parent(), node, figure)
