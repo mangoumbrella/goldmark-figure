@@ -89,6 +89,18 @@ So this won't be a figure.</p>
 	count++
 	testutil.DoTestCase(markdown, testutil.MarkdownTestCase{
 		No:          count,
+		Description: "Image wihtout caption isn't a figure",
+		Markdown: `
+![Alt text](https://example.com/image.jpg)
+`,
+		Expected: `
+<img src="https://example.com/image.jpg" alt="Alt text">
+`,
+	}, t)
+
+	count++
+	testutil.DoTestCase(markdown, testutil.MarkdownTestCase{
+		No:          count,
 		Description: "Multiple paragraph content",
 		Markdown: `
 First paragraph.
