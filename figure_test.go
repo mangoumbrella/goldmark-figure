@@ -91,10 +91,15 @@ So this won't be a figure.</p>
 		No:          count,
 		Description: "Image wihtout caption isn't a figure",
 		Markdown: `
+Following image is without caption:
+
 ![Alt text](https://example.com/image.jpg)
+
+So this won't be a figure.
 `,
-		Expected: `
+		Expected: `<p>Following image is without caption:</p>
 <img src="https://example.com/image.jpg" alt="Alt text">
+<p>So this won't be a figure.</p>
 `,
 	}, t)
 
