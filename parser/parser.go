@@ -14,6 +14,9 @@ import (
 	"github.com/yuin/goldmark/text"
 )
 
+// This simple regex ignores image descriptions that contain other links.
+// E.g. ![foo ![bar](/url)](/url2).
+// See CommonMark spec: https://spec.commonmark.org/0.30/#images.
 var imageRegexp = regexp.MustCompile(`^!\[[^[\]]*\](\([^()]*\)|\[[^[\]]*\])\s*$`)
 
 type figureParagraphTransformer struct {
@@ -35,15 +38,13 @@ func (b *figureParagraphTransformer) Transform(node *gast.Paragraph, reader text
 	var source = reader.Source()
 	var firstSeg = lines.At(0)
 	var firstLineStr = firstSeg.Value(source)
-	// Here we simply match by regex.
-	// But this simple regex ignores image descriptions that contain other links.
-	// E.g. ![foo ![bar](/url)](/url2).
-	// See CommonMark spec: https://spec.commonmark.org/0.30/#images.
+
 	var isImage = imageRegexp.Match(firstLineStr)
 	var onlyImage = isImage && lines.Len() == 1
 	if !isImage || onlyImage {
 		return
 	}
+
 	figure := fast.NewFigure()
 	node.Parent().ReplaceChild(node.Parent(), node, figure)
 
