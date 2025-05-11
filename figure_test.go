@@ -89,7 +89,7 @@ So this won't be a figure.</p>
 	count++
 	testutil.DoTestCase(markdown, testutil.MarkdownTestCase{
 		No:          count,
-		Description: "Image wihtout caption isn't a figure",
+		Description: "Image without caption isn't a figure",
 		Markdown: `
 Following image is without caption:
 
