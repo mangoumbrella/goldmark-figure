@@ -20,17 +20,16 @@ import (
 var imageRegexp = regexp.MustCompile(`^!\[[^[\]]*\](\([^()]*\)|\[[^[\]]*\])\s*$`)
 
 type figureParagraphTransformer struct {
+	skipNoCaption bool
 }
-
-var defaultFigureParagraphTransformer = &figureParagraphTransformer{}
 
 // NewFigureParagraphTransformer returns a new ParagraphTransformer
 // that can transform paragraphs into figures.
-func NewFigureParagraphTransformer() parser.ParagraphTransformer {
-	return defaultFigureParagraphTransformer
+func NewFigureParagraphTransformer(skipNoCaption bool) parser.ParagraphTransformer {
+	return &figureParagraphTransformer{skipNoCaption: skipNoCaption}
 }
 
-func (b *figureParagraphTransformer) Transform(node *gast.Paragraph, reader text.Reader, pc parser.Context) {
+func (t *figureParagraphTransformer) Transform(node *gast.Paragraph, reader text.Reader, pc parser.Context) {
 	lines := node.Lines()
 	if lines.Len() < 1 {
 		return
@@ -40,8 +39,8 @@ func (b *figureParagraphTransformer) Transform(node *gast.Paragraph, reader text
 	var firstLineStr = firstSeg.Value(source)
 
 	var isImage = imageRegexp.Match(firstLineStr)
-	var onlyImage = isImage && lines.Len() == 1
-	if !isImage || onlyImage {
+	var hasNoCaption = isImage && lines.Len() == 1
+	if !isImage || (t.skipNoCaption && hasNoCaption) {
 		return
 	}
 
