@@ -38,9 +38,10 @@ func (t *figureParagraphTransformer) Transform(node *gast.Paragraph, reader text
 	var firstSeg = lines.At(0)
 	var firstLineStr = firstSeg.Value(source)
 
-	var isImage = imageRegexp.Match(firstLineStr)
-	var hasNoCaption = isImage && lines.Len() == 1
-	if !isImage || (t.skipNoCaption && hasNoCaption) {
+	if !imageRegexp.Match(firstLineStr) {
+		return
+	}
+	if t.skipNoCaption && lines.Len() == 1 {
 		return
 	}
 
