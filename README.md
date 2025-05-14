@@ -127,6 +127,12 @@ See `TestFigureWithSkipNoCaption()` in [`figure_test.go`](/figure_test.go) for a
 
 # Changelog
 
+## v1.3.0 (2025-05-13)
+
+* New option to skip images without caption (see
+  [#7](https://github.com/mangoumbrella/goldmark-figure/pull/7)).
+  Thanks [@peterbozso](https://github.com/peterbozso) for the contribution!
+
 ## v1.2.0 (2024-06-19)
 
 * Support multiple images (see
