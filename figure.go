@@ -17,6 +17,7 @@ import (
 
 type extension struct {
 	renderImageLink bool
+	skipNoCaption   bool
 }
 
 // Figure is an extension to render <figure> elements.
@@ -27,10 +28,15 @@ func (f *extension) WithImageLink() *extension {
 	return f
 }
 
+func (f *extension) WithSkipNoCaption() *extension {
+	f.skipNoCaption = true
+	return f
+}
+
 func (f *extension) Extend(m goldmark.Markdown) {
 	m.Parser().AddOptions(
 		aparser.WithParagraphTransformers(
-			util.Prioritized(fparser.NewFigureParagraphTransformer(), 120),
+			util.Prioritized(fparser.NewFigureParagraphTransformer(f.skipNoCaption), 120),
 		),
 		aparser.WithASTTransformers(
 			util.Prioritized(fparser.NewFigureASTTransformer(), 0),

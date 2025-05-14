@@ -14,20 +14,22 @@ import (
 	"github.com/yuin/goldmark/text"
 )
 
+// This simple regex ignores image descriptions that contain other links.
+// E.g. ![foo ![bar](/url)](/url2).
+// See CommonMark spec: https://spec.commonmark.org/0.30/#images.
 var imageRegexp = regexp.MustCompile(`^!\[[^[\]]*\](\([^()]*\)|\[[^[\]]*\])\s*$`)
 
 type figureParagraphTransformer struct {
+	skipNoCaption bool
 }
-
-var defaultFigureParagraphTransformer = &figureParagraphTransformer{}
 
 // NewFigureParagraphTransformer returns a new ParagraphTransformer
 // that can transform paragraphs into figures.
-func NewFigureParagraphTransformer() parser.ParagraphTransformer {
-	return defaultFigureParagraphTransformer
+func NewFigureParagraphTransformer(skipNoCaption bool) parser.ParagraphTransformer {
+	return &figureParagraphTransformer{skipNoCaption: skipNoCaption}
 }
 
-func (b *figureParagraphTransformer) Transform(node *gast.Paragraph, reader text.Reader, pc parser.Context) {
+func (t *figureParagraphTransformer) Transform(node *gast.Paragraph, reader text.Reader, pc parser.Context) {
 	lines := node.Lines()
 	if lines.Len() < 1 {
 		return
@@ -35,13 +37,14 @@ func (b *figureParagraphTransformer) Transform(node *gast.Paragraph, reader text
 	var source = reader.Source()
 	var firstSeg = lines.At(0)
 	var firstLineStr = firstSeg.Value(source)
-	// Here we simply match by regex.
-	// But this simple regex ignores image descriptions that contain other links.
-	// E.g. ![foo ![bar](/url)](/url2).
-	// See CommonMark spec: https://spec.commonmark.org/0.30/#images.
+
 	if !imageRegexp.Match(firstLineStr) {
 		return
 	}
+	if t.skipNoCaption && lines.Len() == 1 {
+		return
+	}
+
 	figure := fast.NewFigure()
 	node.Parent().ReplaceChild(node.Parent(), node, figure)
 

@@ -89,6 +89,25 @@ So this won't be a figure.</p>
 	count++
 	testutil.DoTestCase(markdown, testutil.MarkdownTestCase{
 		No:          count,
+		Description: "Image without caption is still a figure",
+		Markdown: `
+Following image is without caption:
+
+![Alt text](https://example.com/image.jpg)
+
+But it'll still be a figure.
+`,
+		Expected: `<p>Following image is without caption:</p>
+<figure>
+<img src="https://example.com/image.jpg" alt="Alt text">
+</figure>
+<p>But it'll still be a figure.</p>
+`,
+	}, t)
+
+	count++
+	testutil.DoTestCase(markdown, testutil.MarkdownTestCase{
+		No:          count,
 		Description: "Multiple paragraph content",
 		Markdown: `
 First paragraph.
@@ -190,6 +209,32 @@ Awesome captions about the **kitties**.
 </a>
 <figcaption><p>Awesome captions about the <strong>kitties</strong>.</p></figcaption>
 </figure>
+`,
+	}, t)
+}
+
+func TestFigureWithSkipNoCaption(t *testing.T) {
+	markdown := goldmark.New(
+		goldmark.WithExtensions(
+			figure.Figure.WithSkipNoCaption(),
+		),
+	)
+	count := 0
+
+	count++
+	testutil.DoTestCase(markdown, testutil.MarkdownTestCase{
+		No:          count,
+		Description: "Image without caption isn't a figure",
+		Markdown: `
+Following image is without caption:
+
+![Alt text](https://example.com/image.jpg)
+
+So this won't be a figure.
+`,
+		Expected: `<p>Following image is without caption:</p>
+<p><img src="https://example.com/image.jpg" alt="Alt text"></p>
+<p>So this won't be a figure.</p>
 `,
 	}, t)
 }

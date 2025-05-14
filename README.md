@@ -111,6 +111,20 @@ Render result:
 
 See [`figure_test.go`](/figure_test.go) for more examples.
 
+## Option to skip images without captions
+
+Example:
+
+```go
+goldmark.WithExtensions(
+    figure.Figure.WithSkipNoCaption(),
+),
+```
+
+In case a link to an image doesn't have a caption (a line of text following it without any linebreaks in between), it won't be warpped in a `<figure>`.
+
+See `TestFigureWithSkipNoCaption()` in [`figure_test.go`](/figure_test.go) for an example.
+
 # Changelog
 
 ## v1.2.0 (2024-06-19)
