@@ -72,8 +72,10 @@ func (t *figureParagraphTransformer) Transform(node *gast.Paragraph, reader text
 		for i := currentLine; i < lines.Len(); i++ {
 			seg := lines.At(i)
 			if i == lines.Len()-1 {
-				// trim last newline(\n)
-				seg.Stop = seg.Stop - 1
+				// trim last newline(\n) if present
+				if seg.Stop > seg.Start && source[seg.Stop-1] == '\n' {
+					seg.Stop = seg.Stop - 1
+				}
 			}
 			figureCaption.Lines().Append(seg)
 		}

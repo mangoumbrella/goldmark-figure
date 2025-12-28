@@ -127,6 +127,10 @@ See `TestFigureWithSkipNoCaption()` in [`figure_test.go`](/figure_test.go) for a
 
 # Changelog
 
+## v1.4.0 (2025-12-27)
+
+* Fix a bug where the last character in the end of the doc could be swallowed.
+
 ## v1.3.0 (2025-05-13)
 
 * New option to skip images without caption (see

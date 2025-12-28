@@ -73,6 +73,20 @@ This is the continued line.</p></figcaption>
 	count++
 	testutil.DoTestCase(markdown, testutil.MarkdownTestCase{
 		No:          count,
+		Description: "Sentence period and link",
+		Markdown: `
+![Alt text](https://example.com/image.jpg)
+This is a [link](https://example.com).`,
+		Expected: `<figure>
+<img src="https://example.com/image.jpg" alt="Alt text">
+<figcaption><p>This is a <a href="https://example.com">link</a>.</p></figcaption>
+</figure>
+`,
+	}, t)
+
+	count++
+	testutil.DoTestCase(markdown, testutil.MarkdownTestCase{
+		No:          count,
 		Description: "Image in the middle isn't a figure",
 		Markdown: `
 Following image is in the middle:
