@@ -177,7 +177,6 @@ Awesome captions about the **kitties**.
 </figure>
 `,
 	}, t)
-
 }
 
 func TestFigureWithImageLink(t *testing.T) {
@@ -249,6 +248,76 @@ So this won't be a figure.
 		Expected: `<p>Following image is without caption:</p>
 <p><img src="https://example.com/image.jpg" alt="Alt text"></p>
 <p>So this won't be a figure.</p>
+`,
+	}, t)
+}
+
+func TestFigureWithAltTextFallbackCaption(t *testing.T) {
+	markdown := goldmark.New(
+		goldmark.WithExtensions(
+			figure.Figure.WithAltTextFallbackCaption(),
+		),
+	)
+	count := 0
+
+	count++
+	testutil.DoTestCase(markdown, testutil.MarkdownTestCase{
+		No:          count,
+		Description: "Image without paragraph uses alt-text as figcaption",
+		Markdown: `
+This figure comes from the image caption:
+
+![*This* is the figure](https://example.com/image.jpg)
+
+And doesn't have a joined paragraph.
+
+![This is NOT the figure](https://example.com/image.jpg)
+This is the figure, as it's joined.
+`,
+		Expected: `<p>This figure comes from the image caption:</p>
+<figure>
+<img src="https://example.com/image.jpg" alt="This is the figure">
+<figcaption><p><em>This</em> is the figure</p></figcaption>
+</figure>
+<p>And doesn't have a joined paragraph.</p>
+<figure>
+<img src="https://example.com/image.jpg" alt="This is NOT the figure">
+<figcaption><p>This is the figure, as it's joined.</p></figcaption>
+</figure>
+`,
+	}, t)
+}
+
+func TestFigureWithAltTextSkipNoCaption(t *testing.T) {
+	markdown := goldmark.New(
+		goldmark.WithExtensions(
+			figure.Figure.
+				WithAltTextFallbackCaption().
+				WithSkipNoCaption(),
+		),
+	)
+	count := 0
+
+	count++
+	testutil.DoTestCase(markdown, testutil.MarkdownTestCase{
+		No:          count,
+		Description: "Skip caption and alt text caption interplay",
+		Markdown: `
+The following image has an image caption but not a markdown caption:
+
+![Alt text is the figcaption](https://example.com/image.jpg)
+
+Behaviour with no alt text:
+
+![](https://example.com/image.jpg)
+`,
+		Expected: `<p>The following image has an image caption but not a markdown caption:</p>
+<figure>
+<img src="https://example.com/image.jpg" alt="Alt text is the figcaption">
+<figcaption><p>Alt text is the figcaption</p></figcaption>
+</figure>
+<p>Behaviour with no alt text:</p>
+<p><img src="https://example.com/image.jpg" alt=""></p>
 `,
 	}, t)
 }

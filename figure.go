@@ -16,27 +16,39 @@ import (
 )
 
 type extension struct {
-	renderImageLink bool
-	skipNoCaption   bool
+	renderImageLink        bool
+	skipNoCaption          bool
+	altTextFallbackCaption bool
 }
 
 // Figure is an extension to render <figure> elements.
 var Figure = &extension{}
 
 func (f *extension) WithImageLink() *extension {
-	f.renderImageLink = true
-	return f
+	opts := *f
+	opts.renderImageLink = true
+	return &opts
 }
 
 func (f *extension) WithSkipNoCaption() *extension {
-	f.skipNoCaption = true
-	return f
+	opts := *f
+	opts.skipNoCaption = true
+	return &opts
+}
+
+func (f *extension) WithAltTextFallbackCaption() *extension {
+	opts := *f
+	opts.altTextFallbackCaption = true
+	return &opts
 }
 
 func (f *extension) Extend(m goldmark.Markdown) {
 	m.Parser().AddOptions(
 		aparser.WithParagraphTransformers(
-			util.Prioritized(fparser.NewFigureParagraphTransformer(f.skipNoCaption), 120),
+			util.Prioritized(
+				fparser.NewFigureParagraphTransformer(f.skipNoCaption, f.altTextFallbackCaption),
+				120,
+			),
 		),
 		aparser.WithASTTransformers(
 			util.Prioritized(fparser.NewFigureASTTransformer(), 0),

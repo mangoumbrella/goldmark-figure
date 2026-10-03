@@ -125,6 +125,47 @@ In case a link to an image doesn't have a caption (a line of text following it w
 
 See `TestFigureWithSkipNoCaption()` in [`figure_test.go`](/figure_test.go) for an example.
 
+## Option to use alt text as a fallback caption
+
+This option allows image alt text to be rendered as a `<figcaption>` when there
+is no joined text below the image to serve as a caption.
+
+For example:
+
+```go
+goldmark.WithExtensions(
+    figure.Figure.WithAltTextFallbackCaption(),
+),
+```
+
+Markdown:
+
+```markdown
+![Awesome caption about **Oscar** the kitty.](/path/to/cat.jpg)
+```
+
+Render result:
+
+```html
+<figure>
+<img src="/path/to/cat.jpg" alt="Awesome caption about Oscar the kitty." />
+<figcaption>Awesome caption about <strong>Oscar</strong> the kitty.</figcaption>
+</figure>
+```
+
+When combined with `SkipNoCaption`, like this:
+
+```go
+goldmark.WithExtensions(
+    figure.Figure.WithAltTextFallbackCaption().WithSkipNoCaption(),
+),
+```
+
+Non-empty alt text counts as a caption. For example, a caption-free markdown
+image (`![](file.jpg)`) will skip the creation of the capture, but
+an image with a caption (for example: `![This caption](file.jpg)`) will result
+in the creation of a fallback `<figcaption>` of the alt text.
+
 # Changelog
 
 ## v1.4.0 (2025-12-27)

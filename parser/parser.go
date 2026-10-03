@@ -17,16 +17,17 @@ import (
 // This simple regex ignores image descriptions that contain other links.
 // E.g. ![foo ![bar](/url)](/url2).
 // See CommonMark spec: https://spec.commonmark.org/0.30/#images.
-var imageRegexp = regexp.MustCompile(`^!\[[^[\]]*\](\([^()]*\)|\[[^[\]]*\])\s*$`)
+var imageRegexp = regexp.MustCompile(`^!\[([^[\]]*)\](\([^()]*\)|\[[^[\]]*\])\s*$`)
 
 type figureParagraphTransformer struct {
-	skipNoCaption bool
+	skipNoCaption          bool
+	altTextFallbackCaption bool
 }
 
 // NewFigureParagraphTransformer returns a new ParagraphTransformer
 // that can transform paragraphs into figures.
-func NewFigureParagraphTransformer(skipNoCaption bool) parser.ParagraphTransformer {
-	return &figureParagraphTransformer{skipNoCaption: skipNoCaption}
+func NewFigureParagraphTransformer(skipNoCaption bool, altTextFallbackCaption bool) parser.ParagraphTransformer {
+	return &figureParagraphTransformer{skipNoCaption: skipNoCaption, altTextFallbackCaption: altTextFallbackCaption}
 }
 
 func (t *figureParagraphTransformer) Transform(node *gast.Paragraph, reader text.Reader, pc parser.Context) {
@@ -38,10 +39,16 @@ func (t *figureParagraphTransformer) Transform(node *gast.Paragraph, reader text
 	var firstSeg = lines.At(0)
 	var firstLineStr = firstSeg.Value(source)
 
-	if !imageRegexp.Match(firstLineStr) {
+	imageMatch := imageRegexp.FindSubmatchIndex(firstLineStr)
+	if imageMatch == nil {
 		return
 	}
-	if t.skipNoCaption && lines.Len() == 1 {
+
+	altStart, altStop := imageMatch[2], imageMatch[3]
+	hasAltText := altStart != altStop
+	hasFallbackCaption := t.altTextFallbackCaption && hasAltText
+
+	if t.skipNoCaption && lines.Len() == 1 && !hasFallbackCaption {
 		return
 	}
 
@@ -79,6 +86,13 @@ func (t *figureParagraphTransformer) Transform(node *gast.Paragraph, reader text
 			}
 			figureCaption.Lines().Append(seg)
 		}
+		figure.AppendChild(figure, figureCaption)
+	} else if t.altTextFallbackCaption && hasAltText {
+		figureCaption := fast.NewFigureCaption()
+		figureCaption.Lines().Append(text.NewSegment(
+			firstSeg.Start+altStart,
+			firstSeg.Start+altStop,
+		))
 		figure.AppendChild(figure, figureCaption)
 	}
 }
