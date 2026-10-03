@@ -116,7 +116,7 @@ func (r *FigureHTMLRenderer) renderFigureImage(w util.BufWriter, source []byte, 
 	if r.renderImageLink {
 		if image, ok := n.FirstChild().(*gast.Image); ok {
 			if entering {
-				_, _ = w.WriteString(fmt.Sprintf("<a href=\"%s\">\n", string(image.Destination)))
+				_, _ = fmt.Fprintf(w, "<a href=\"%s\">\n", string(image.Destination))
 			} else {
 				_, _ = w.WriteString("</a>\n")
 			}
